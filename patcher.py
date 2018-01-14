@@ -10,17 +10,21 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import urllib.request
 import random
 import tarfile
-import time
+import os
+import subprocess
 
 url = "http://fallback.hextcg.com/static/live/linux/hex.tar.gz"
 archivepath = "hex.tar.gz"
 
+defaultInstallDir="{}/hex/".format(os.getcwd())
+defaultDownloadDir="/tmp/"
+
 class Ui_hexpatcherwindow(object):
     def setupUi(self, hexpatcherwindow):
         hexpatcherwindow.setObjectName("hexpatcherwindow")
-        hexpatcherwindow.resize(800, 600)
-        hexpatcherwindow.setMinimumSize(QtCore.QSize(800, 600))
-        hexpatcherwindow.setMaximumSize(QtCore.QSize(800, 600))
+        hexpatcherwindow.resize(800, 570)
+        hexpatcherwindow.setMinimumSize(QtCore.QSize(800, 570))
+        hexpatcherwindow.setMaximumSize(QtCore.QSize(800, 570))
         self.centralwidget = QtWidgets.QWidget(hexpatcherwindow)
         self.centralwidget.setStyleSheet("#centralwidget { \n"
                                          "background-image: url(:/bg/hex-bg.jpg); \n"
@@ -218,26 +222,89 @@ class Ui_hexpatcherwindow(object):
         self.uptodate.setGeometry(QtCore.QRect(10, 540, 151, 22))
         self.uptodate.setObjectName("uptodate")
         self.uptodate.setChecked(settings.value('forceuptodate', type=bool))
+        self.label_6 = QtWidgets.QLabel(self.centralwidget)
+        self.label_6.setGeometry(QtCore.QRect(180, 551, 441, 15))
+        font = QtGui.QFont()
+        font.setPointSize(8)
+        self.label_6.setFont(font)
+        self.label_6.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_6.setObjectName("label_6")
+        self.optionsButton = QtWidgets.QPushButton(self.centralwidget)
+        self.optionsButton.setGeometry(QtCore.QRect(670, 540, 119, 18))
+        self.optionsButton.setAutoFillBackground(False)
+        self.optionsButton.setStyleSheet(":hover{ \n"
+                                         "color: gray;\n"
+                                         "}\n"
+                                         "#optionsButton{\n"
+                                         "border:0;\n"
+                                         "text-align: right;\n"
+                                         "}")
+        self.optionsButton.setFlat(True)
+        self.optionsButton.setObjectName("optionsButton")
+        self.optionsWidget = QtWidgets.QWidget(self.centralwidget)
+        self.optionsWidget.setGeometry(QtCore.QRect(670, 452, 121, 81))
+        self.optionsWidget.setObjectName("optionsWidget")
+        self.optionsWidget.setVisible(False)
+        self.verticalLayoutWidget = QtWidgets.QWidget(self.optionsWidget)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 10, 121, 71))
+        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.optionsLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.optionsLayout.setContentsMargins(0, 0, 0, 0)
+        self.optionsLayout.setObjectName("optionsLayout")
+        self.forceInstallButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.forceInstallButton.setEnabled(False)
+        self.forceInstallButton.setAutoFillBackground(False)
+        self.forceInstallButton.setStyleSheet(":hover{ \n"
+                                              "color: gray;\n"
+                                              "}\n"
+                                              "#forceInstallButton{\n"
+                                              "border:0;\n"
+                                              "text-align: right;\n"
+                                              "}")
+        self.forceInstallButton.setFlat(True)
+        self.forceInstallButton.setObjectName("forceInstallButton")
+        self.optionsLayout.addWidget(self.forceInstallButton)
+        self.installDirButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.installDirButton.setAutoFillBackground(False)
+        self.installDirButton.setStyleSheet(":hover{ \n"
+                                            "color: gray;\n"
+                                            "}\n"
+                                            "#installDirButton{\n"
+                                            "border:0;\n"
+                                            "text-align: right;\n"
+                                            "}")
+        self.installDirButton.setFlat(True)
+        self.installDirButton.setObjectName("installDirButton")
+        self.installDirButton.setToolTip(settings.value("installDir", defaultInstallDir, type=str))
+        self.optionsLayout.addWidget(self.installDirButton)
+        self.downloadDirButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.downloadDirButton.setAutoFillBackground(False)
+        self.downloadDirButton.setStyleSheet(":hover{ \n"
+                                             "color: gray;\n"
+                                             "}\n"
+                                             "#downloadDirButton{\n"
+                                             "border:0;\n"
+                                             "text-align: right;\n"
+                                             "}")
+        self.downloadDirButton.setFlat(True)
+        self.downloadDirButton.setObjectName("downloadDirButton")
+        self.downloadDirButton.setToolTip(settings.value("downloadDir", defaultDownloadDir, type=str))
+        self.optionsLayout.addWidget(self.downloadDirButton)
         hexpatcherwindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(hexpatcherwindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 30))
-        self.menubar.setObjectName("menubar")
-        self.menuSettings = QtWidgets.QMenu(self.menubar)
-        self.menuSettings.setObjectName("menuSettings")
-        hexpatcherwindow.setMenuBar(self.menubar)
         self.actionChange_download_directory = QtWidgets.QAction(hexpatcherwindow)
         self.actionChange_download_directory.setEnabled(True)
         self.actionChange_download_directory.setObjectName("actionChange_download_directory")
         self.actionForce_redownload = QtWidgets.QAction(hexpatcherwindow)
         self.actionForce_redownload.setObjectName("actionForce_redownload")
-        self.menuSettings.addAction(self.actionChange_download_directory)
-        self.menuSettings.addAction(self.actionForce_redownload)
-        self.menubar.addAction(self.menuSettings.menuAction())
 
         self.retranslateUi(hexpatcherwindow)
 
         self.playButton.clicked.connect(self.playButtonClick)
         self.uptodate.toggled.connect(self.uptodateToggle)
+        self.optionsButton.clicked.connect(self.toggleOptions)
+        self.installDirButton.clicked.connect(self.selectInstallDir)
+        self.downloadDirButton.clicked.connect(self.selectDownloadDir)
+
 
         QtCore.QMetaObject.connectSlotsByName(hexpatcherwindow)
 
@@ -255,9 +322,11 @@ class Ui_hexpatcherwindow(object):
                                           "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#999999;\">Fri, 12 Jan 2018, 9:15 am</span></p></body></html>"))
         self.patchtext.setPlaceholderText(_translate("hexpatcherwindow", "Loading news."))
         self.uptodate.setText(_translate("hexpatcherwindow", "Game is up-to-date"))
-        self.menuSettings.setTitle(_translate("hexpatcherwindow", "A&dditional"))
-        self.actionChange_download_directory.setText(_translate("hexpatcherwindow", "&Change download directory"))
-        self.actionForce_redownload.setText(_translate("hexpatcherwindow", "&Force redownload"))
+        self.label_6.setText(_translate("hexpatcherwindow", "Made by fans. All assets are the property of their respective owners."))
+        self.forceInstallButton.setText(_translate("hexpatcherwindow", "Force Install"))
+        self.installDirButton.setText(_translate("hexpatcherwindow", "Install Location"))
+        self.downloadDirButton.setText(_translate("hexpatcherwindow", "Download Location"))
+        self.optionsButton.setText(_translate("hexpatcherwindow", "Options"))
 
     def uptodateToggle(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
@@ -278,9 +347,45 @@ class Ui_hexpatcherwindow(object):
             self.download()
 
     def playGame(self):
-        self.playButton.setText("Yay, you are playing.")
+        self.playButton.setText("Starting game.")
+        self.playButton.setEnabled(False)
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        chosenpath = settings.value("installDir", defaultInstallDir, type=str)
+        p = subprocess.Popen(["./Hex.x86"], cwd=chosenpath, shell=True)
+        hexpatcherwindow.hide()
+        p.wait()
+        hexpatcherwindow.close()
+
+
+    def toggleOptions(self):
+        self.optionsWidget.setVisible(not self.optionsWidget.isVisible())
+
+    def selectInstallDir(self):
+        selectedPath=QtWidgets.QFileDialog.getExistingDirectory()
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        settings.setValue('installDir', selectedPath)
+        settings.sync()
+        del settings
+        self.installDirButton.setToolTip(selectedPath)
+        self.label_6.setText(selectedPath)
+
+    def selectDownloadDir(self):
+        selectedPath=QtWidgets.QFileDialog.getExistingDirectory()
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        settings.setValue('downloadDir', selectedPath)
+        settings.sync()
+        del settings
+        self.downloadDirButton.setToolTip(selectedPath)
+        self.label_6.setText(selectedPath)
+
+    def getDownloadDir(self):
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        chosenpath = settings.value("downloadDir", defaultDownloadDir, type=str)
+        fullpath = "{}/hex.tar.gz".format(chosenpath)
+        return fullpath
 
     def download(self):
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         def reporthook(blocknum, blocksize, totalsize):
             readsofar = blocknum * blocksize
             if totalsize > 0:
@@ -296,7 +401,7 @@ class Ui_hexpatcherwindow(object):
         self.playButton.setEnabled(False)
         self.playButton.setText("Downloading")
         if self.url_is_alive(url):
-            urllib.request.urlretrieve(url, archivepath, reporthook)
+            urllib.request.urlretrieve(url, self.getDownloadDir(), reporthook)
             self.progressBar.setValue(100)
             self.playButton.setEnabled(True)
             self.playButton.setText("Download Complete")
@@ -321,11 +426,11 @@ class Ui_hexpatcherwindow(object):
                 self.playButton.setText(
                     "{}% extracted".format(tarpercent(tar.getmembers().index(member_info), len(tar.getmembers()))))
                 QtWidgets.QApplication.processEvents()
-                tar.extract(member_info, "./hex/")
+                tar.extract(member_info, settings.value("installDir", defaultDownloadDir, type=str))
 
             tar.close()
 
-        extraction(archivepath)
+        extraction(self.getDownloadDir())
         self.playButton.setText("Extraction complete")
 
     def gameuptodate(self):
