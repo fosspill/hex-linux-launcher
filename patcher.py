@@ -6,14 +6,28 @@ import random
 import tarfile
 import os
 import subprocess
+import feedparser
 
 url = "http://fallback.hextcg.com/static/live/linux/hex.tar.gz"
 archivepath = "hex.tar.gz"
+rss = "https://forums.hextcg.com/index.php?board-feed/9/&at=2005-7741e7e5e702a32b9070a9743435e54b516d408a"
+
 
 defaultInstallDir="{}/hex/".format(os.getcwd())
 defaultDownloadDir="/tmp/"
 
 class Ui_hexpatcherwindow(object):
+    def lastRssItem(self):
+        d = feedparser.parse(rss)
+
+        html = ("""<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n
+             <html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n
+             p, li {{ white-space: pre-wrap; }}\n
+             </style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n
+             <p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"{}\"><span style=\" font-weight:600; text-decoration: underline; color:#2980b9;\">{}</span></a><br />{}</p>\n
+             <p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#999999;\">{}</span></p></body></html>""".format(
+            d["entries"][0]["link"], d["entries"][0]["title"], d["entries"][0]["summary"], d["entries"][0]["published"]))
+        return html
     def setupUi(self, hexpatcherwindow):
         hexpatcherwindow.setObjectName("hexpatcherwindow")
         hexpatcherwindow.resize(800, 570)
@@ -307,13 +321,14 @@ class Ui_hexpatcherwindow(object):
         hexpatcherwindow.setWindowTitle(_translate("hexpatcherwindow", "Unofficial Hex: Shards of Fate Patcher"))
         self.playButton.setText(_translate("hexpatcherwindow", "Check for updates"))
         self.label.setText(_translate("hexpatcherwindow", "Maintenance and Updates - HEX: Shards of Fate"))
-        self.patchtext.setHtml(_translate("hexpatcherwindow",
-                                          "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                                          "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-                                          "p, li { white-space: pre-wrap; }\n"
-                                          "</style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-                                          "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"https://forums.hextcg.com/index.php?thread/3001-dead-of-winter-update-patch-notes-1-0-8-049/\"><span style=\" font-weight:600; text-decoration: underline; color:#2980b9;\">Dead of Winter Update - Patch Notes 1.0.8.049</span></a><br />Patch Notes for our 1.0.8.049 update are now up: <a href=\"https://www.hextcg.com/dead-winter-update-patch-notes-1-0-8-049/\"><span style=\" text-decoration: underline; color:#2980b9;\">hextcg.com/dead-winter-update-patch-notes-1-0-8-049/</span></a></p>\n"
-                                          "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#999999;\">Fri, 12 Jan 2018, 9:15 am</span></p></body></html>"))
+        #self.patchtext.setHtml(_translate("hexpatcherwindow",
+        #                                  "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+        #                                  "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+        #                                  "p, li { white-space: pre-wrap; }\n"
+        #                                  "</style></head><body style=\" font-family:\'Noto Sans\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+        #                                  "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><a href=\"https://forums.hextcg.com/index.php?thread/3001-dead-of-winter-update-patch-notes-1-0-8-049/\"><span style=\" font-weight:600; text-decoration: underline; color:#2980b9;\">Dead of Winter Update - Patch Notes 1.0.8.049</span></a><br />Patch Notes for our 1.0.8.049 update are now up: <a href=\"https://www.hextcg.com/dead-winter-update-patch-notes-1-0-8-049/\"><span style=\" text-decoration: underline; color:#2980b9;\">hextcg.com/dead-winter-update-patch-notes-1-0-8-049/</span></a></p>\n"
+        #                                  "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#999999;\">Fri, 12 Jan 2018, 9:15 am</span></p></body></html>"))
+        self.patchtext.setHtml(_translate("hexpatcherwindow", self.lastRssItem()))
         self.patchtext.setPlaceholderText(_translate("hexpatcherwindow", "Loading news."))
         self.uptodate.setText(_translate("hexpatcherwindow", "Game is up-to-date"))
         self.label_6.setText(_translate("hexpatcherwindow", "Made by fans. All assets are the property of their respective owners."))
@@ -377,6 +392,9 @@ class Ui_hexpatcherwindow(object):
         chosenpath = settings.value("downloadDir", defaultDownloadDir, type=str)
         fullpath = "{}/hex.tar.gz".format(chosenpath)
         return fullpath
+
+
+
 
     def download(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
