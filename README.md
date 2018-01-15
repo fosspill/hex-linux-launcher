@@ -1,6 +1,6 @@
 # hex-linux-launcher
 
-![Application Gif](https://i.imgur.com/CKw8WuT.gif)
+![Application Gif](https://i.imgur.com/aRYhEVJ.gif)
 
 ## Requirements
 - Python 3
