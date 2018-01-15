@@ -15,7 +15,6 @@ archivepath = "hex.tar.gz"
 rss = "https://forums.hextcg.com/index.php?board-feed/9/&at=2005-7741e7e5e702a32b9070a9743435e54b516d408a"
 
 
-defaultInstallDir="{}/hex/".format(os.getcwd())
 defaultDownloadDir="/tmp/"
 
 class Ui_hexpatcherwindow(object):
@@ -274,7 +273,7 @@ class Ui_hexpatcherwindow(object):
                                             "}")
         self.installDirButton.setFlat(True)
         self.installDirButton.setObjectName("installDirButton")
-        self.installDirButton.setToolTip(settings.value("installDir", defaultInstallDir, type=str))
+        self.installDirButton.setToolTip(settings.value("installDir", type=str))
         self.optionsLayout.addWidget(self.installDirButton)
         self.downloadDirButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.downloadDirButton.setAutoFillBackground(False)
@@ -356,6 +355,9 @@ class Ui_hexpatcherwindow(object):
         del settings
 
     def playButtonClick(self):
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        if not settings.value("installDir",  type=str):
+            self.selectInstallDir()
         if self.gameuptodate():
             self.playButton.setEnabled(True)
             self.playButton.setText("PLAY")
@@ -371,7 +373,7 @@ class Ui_hexpatcherwindow(object):
         self.playButton.setText("Starting game.")
         self.playButton.setEnabled(False)
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
-        chosenpath = settings.value("installDir", defaultInstallDir, type=str)
+        chosenpath = settings.value("installDir", type=str)
         p = subprocess.Popen(["./Hex.x86"], cwd=chosenpath, shell=True)
         hexpatcherwindow.hide()
         p.wait()
