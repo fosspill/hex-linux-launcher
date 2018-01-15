@@ -384,7 +384,7 @@ class Ui_hexpatcherwindow(object):
         self.optionsWidget.setVisible(not self.optionsWidget.isVisible())
 
     def selectInstallDir(self):
-        selectedPath=QtWidgets.QFileDialog.getExistingDirectory()
+        selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Install Directory")
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         settings.setValue('installDir', selectedPath)
         settings.remove("localmd5")
@@ -394,7 +394,7 @@ class Ui_hexpatcherwindow(object):
         self.label_6.setText(selectedPath)
 
     def selectDownloadDir(self):
-        selectedPath=QtWidgets.QFileDialog.getExistingDirectory()
+        selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Download Directory")
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         settings.setValue('downloadDir', selectedPath)
         settings.sync()
