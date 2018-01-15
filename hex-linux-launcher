@@ -216,7 +216,6 @@ class Ui_hexpatcherwindow(object):
         self.patchtext.setObjectName("patchtext")
         self.patchtext.setOpenExternalLinks(True)
         self.uptodate = QtWidgets.QCheckBox(self.centralwidget)
-        self.uptodate.setToolTip("Workaround until update detection is possible.")
         self.uptodate.setGeometry(QtCore.QRect(10, 540, 151, 22))
         self.uptodate.setObjectName("uptodate")
         self.uptodate.setChecked(settings.value('forceuptodate', type=bool))
@@ -356,18 +355,25 @@ class Ui_hexpatcherwindow(object):
 
     def playButtonClick(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        self.optionsButton.setEnabled(False)
+        self.optionsWidget.setVisible(False)
+        self.uptodate.setEnabled(False)
         if not settings.value("installDir",  type=str):
-            self.selectInstallDir()
-        if self.gameuptodate():
+            proceed = self.selectInstallDir()
+        else:
+            proceed = True
+        if self.gameuptodate() and proceed:
             self.playButton.setEnabled(True)
             self.playButton.setText("PLAY")
+            self.optionsButton.setEnabled(True)
             self.playButton.clicked.disconnect(self.playButtonClick)
             self.playButton.clicked.connect(self.playGame)
-            self.uptodate.setEnabled(False)
-        else:
+        elif not self.gameuptodate() and proceed:
             self.playButton.setEnabled(False)
             self.playButton.setText("Warm-up in progress")
             self.download()
+        else:
+            self.resetWindow()
 
     def playGame(self):
         self.playButton.setText("Starting game.")
@@ -379,6 +385,10 @@ class Ui_hexpatcherwindow(object):
         p.wait()
         hexpatcherwindow.close()
 
+    def resetWindow(self):
+        ui.setupUi(hexpatcherwindow)
+        self.playButton.setEnabled(True)
+        self.uptodate.setEnabled(True)
 
     def toggleOptions(self):
         self.optionsWidget.setVisible(not self.optionsWidget.isVisible())
@@ -386,25 +396,31 @@ class Ui_hexpatcherwindow(object):
     def selectInstallDir(self):
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Install Directory")
         if not selectedPath:
-            hexpatcherwindow.close()
-        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
-        settings.setValue('installDir', selectedPath)
-        settings.remove("localmd5")
-        settings.sync()
-        del settings
-        self.installDirButton.setToolTip(selectedPath)
-        self.label_6.setText(selectedPath)
+            self.resetWindow()
+            return False
+        else:
+            settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+            settings.setValue('installDir', selectedPath)
+            settings.remove("localmd5")
+            settings.sync()
+            del settings
+            self.installDirButton.setToolTip(selectedPath)
+            self.label_6.setText(selectedPath)
+            return True
 
     def selectDownloadDir(self):
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Download Directory")
         if not selectedPath:
-            hexpatcherwindow.close()
-        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
-        settings.setValue('downloadDir', selectedPath)
-        settings.sync()
-        del settings
-        self.downloadDirButton.setToolTip(selectedPath)
-        self.label_6.setText(selectedPath)
+            self.resetWindow()
+            return False
+        else:
+            settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+            settings.setValue('downloadDir', selectedPath)
+            settings.sync()
+            del settings
+            self.downloadDirButton.setToolTip(selectedPath)
+            self.label_6.setText(selectedPath)
+            return True
 
     def getDownloadDir(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
