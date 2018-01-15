@@ -374,7 +374,7 @@ class Ui_hexpatcherwindow(object):
         self.playButton.setEnabled(False)
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         chosenpath = settings.value("installDir", type=str)
-        p = subprocess.Popen(["./Hex.x86"], cwd=chosenpath, shell=True)
+        p = subprocess.Popen(["./Hex.x86", "-screen-fullscreen", "0"], cwd=chosenpath, shell=True)
         hexpatcherwindow.hide()
         p.wait()
         hexpatcherwindow.close()
@@ -385,6 +385,8 @@ class Ui_hexpatcherwindow(object):
 
     def selectInstallDir(self):
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Install Directory")
+        if not selectedPath:
+            hexpatcherwindow.close()
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         settings.setValue('installDir', selectedPath)
         settings.remove("localmd5")
@@ -395,6 +397,8 @@ class Ui_hexpatcherwindow(object):
 
     def selectDownloadDir(self):
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Download Directory")
+        if not selectedPath:
+            hexpatcherwindow.close()
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         settings.setValue('downloadDir', selectedPath)
         settings.sync()
