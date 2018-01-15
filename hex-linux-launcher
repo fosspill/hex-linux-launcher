@@ -249,7 +249,6 @@ class Ui_hexpatcherwindow(object):
         self.optionsLayout.setContentsMargins(0, 0, 0, 0)
         self.optionsLayout.setObjectName("optionsLayout")
         self.forceInstallButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
-        self.forceInstallButton.setEnabled(False)
         self.forceInstallButton.setAutoFillBackground(False)
         self.forceInstallButton.setStyleSheet(":hover{ \n"
                                               "color: gray;\n"
@@ -301,6 +300,7 @@ class Ui_hexpatcherwindow(object):
         self.optionsButton.clicked.connect(self.toggleOptions)
         self.installDirButton.clicked.connect(self.selectInstallDir)
         self.downloadDirButton.clicked.connect(self.selectDownloadDir)
+        self.forceInstallButton.clicked.connect(self.forceInstall)
 
 
         QtCore.QMetaObject.connectSlotsByName(hexpatcherwindow)
@@ -428,8 +428,12 @@ class Ui_hexpatcherwindow(object):
         fullpath = "{}/hex.tar.gz".format(chosenpath)
         return fullpath
 
-
-
+    def forceInstall(self):
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
+        settings.remove("localmd5")
+        settings.sync()
+        del settings
+        self.playButtonClick()
 
     def download(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
