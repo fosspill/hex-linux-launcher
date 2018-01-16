@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="bg">
-    <file>logo-hex.png</file>
-    <file>hex-bg.jpg</file>
-  </qresource>
-</RCC>
