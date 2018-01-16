@@ -24,16 +24,18 @@ class Ui_hexpatcherwindow(object):
         hexpatcherwindow.setMaximumSize(QtCore.QSize(800, 570))
         self.centralwidget = QtWidgets.QWidget(hexpatcherwindow)
         self.centralwidget.setStyleSheet("#centralwidget { \n"
-                                         "background-image: url(:/bg/hex-bg.jpg); \n"
-                                         "background-position: center;\n"
-                                         "}")
+"background-image: url(:/bg/hex-bg.jpg); \n"
+"background-position: center;\n"
+"}")
         self.centralwidget.setObjectName("centralwidget")
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(180, 440, 441, 23))
+        self.progressBar.setAutoFillBackground(False)
         self.progressBar.setProperty("value", 0)
         self.progressBar.setTextVisible(False)
         self.progressBar.setInvertedAppearance(False)
+        self.progressBar.setFormat("%p%")
         self.progressBar.setObjectName("progressBar")
         self.playButton = QtWidgets.QPushButton(self.centralwidget)
         self.playButton.setEnabled(True)
@@ -198,9 +200,13 @@ class Ui_hexpatcherwindow(object):
         font.setFamily("Nimbus Sans")
         font.setKerning(False)
         self.label.setFont(font)
+        self.label.setStyleSheet("#label{color: white}")
         self.label.setObjectName("label")
         self.line = QtWidgets.QFrame(self.newsframe)
         self.line.setGeometry(QtCore.QRect(10, 20, 401, 16))
+        self.line.setStyleSheet("#line {\n"
+"color: #616569;\n"
+"}")
         self.line.setFrameShadow(QtWidgets.QFrame.Plain)
         self.line.setMidLineWidth(0)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
@@ -210,77 +216,61 @@ class Ui_hexpatcherwindow(object):
         self.patchnotes.setObjectName("patchnotes")
         self.patchtext = QtWidgets.QTextBrowser(self.patchnotes)
         self.patchtext.setGeometry(QtCore.QRect(10, 0, 381, 201))
-        self.patchtext.setStyleSheet("background-color:rgba(0,0,0,0)")
+        self.patchtext.setStyleSheet("#patchtext {\n"
+"background-color:rgba(0,0,0,0);\n"
+"color: white;\n"
+"}\n"
+"#patchtext a{\n"
+"color: #2580b9;\n"
+"}")
         self.patchtext.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.patchtext.setObjectName("patchtext")
-        self.patchtext.setOpenExternalLinks(True)
         self.uptodate = QtWidgets.QCheckBox(self.centralwidget)
-        self.uptodate.setGeometry(QtCore.QRect(10, 540, 151, 22))
+        self.uptodate.setGeometry(QtCore.QRect(10, 540, 171, 22))
+        self.uptodate.setStyleSheet("#uptodate {\n"
+"color: white;\n"
+"}")
         self.uptodate.setObjectName("uptodate")
-        self.uptodate.setChecked(settings.value('forceuptodate', type=bool))
         self.label_6 = QtWidgets.QLabel(self.centralwidget)
         self.label_6.setGeometry(QtCore.QRect(180, 551, 441, 15))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_6.setFont(font)
+        self.label_6.setStyleSheet("#label_6{color: #bec6c4}")
         self.label_6.setAlignment(QtCore.Qt.AlignCenter)
         self.label_6.setObjectName("label_6")
         self.optionsButton = QtWidgets.QPushButton(self.centralwidget)
         self.optionsButton.setGeometry(QtCore.QRect(670, 540, 119, 18))
         self.optionsButton.setAutoFillBackground(False)
-        self.optionsButton.setStyleSheet(":hover{ \n"
-                                         "color: gray;\n"
-                                         "}\n"
-                                         "#optionsButton{\n"
-                                         "border:0;\n"
-                                         "text-align: right;\n"
-                                         "}")
+        self.optionsButton.setStyleSheet("#optionsButton{color: white;border:0;text-align: right;}#optionsButton:hover{color: gray;}")
         self.optionsButton.setFlat(True)
         self.optionsButton.setObjectName("optionsButton")
         self.optionsWidget = QtWidgets.QWidget(self.centralwidget)
-        self.optionsWidget.setGeometry(QtCore.QRect(670, 452, 121, 81))
+        self.optionsWidget.setGeometry(QtCore.QRect(655, 452, 136, 81))
         self.optionsWidget.setObjectName("optionsWidget")
         self.optionsWidget.setVisible(False)
         self.verticalLayoutWidget = QtWidgets.QWidget(self.optionsWidget)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 10, 121, 71))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(0, 10, 136, 71))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.optionsLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.optionsLayout.setContentsMargins(0, 0, 0, 0)
         self.optionsLayout.setObjectName("optionsLayout")
         self.forceInstallButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.forceInstallButton.setAutoFillBackground(False)
-        self.forceInstallButton.setStyleSheet(":hover{ \n"
-                                              "color: gray;\n"
-                                              "}\n"
-                                              "#forceInstallButton{\n"
-                                              "border:0;\n"
-                                              "text-align: right;\n"
-                                              "}")
+        self.forceInstallButton.setStyleSheet("#forceInstallButton{color: white;border:0;text-align: right;}#forceInstallButton:hover{color: gray;}")
         self.forceInstallButton.setFlat(True)
         self.forceInstallButton.setObjectName("forceInstallButton")
         self.optionsLayout.addWidget(self.forceInstallButton)
         self.installDirButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.installDirButton.setAutoFillBackground(False)
-        self.installDirButton.setStyleSheet(":hover{ \n"
-                                            "color: gray;\n"
-                                            "}\n"
-                                            "#installDirButton{\n"
-                                            "border:0;\n"
-                                            "text-align: right;\n"
-                                            "}")
+        self.installDirButton.setStyleSheet("#installDirButton{color: white;border:0;text-align: right;}#installDirButton:hover{color: gray;}")
         self.installDirButton.setFlat(True)
         self.installDirButton.setObjectName("installDirButton")
         self.installDirButton.setToolTip(settings.value("installDir", type=str))
         self.optionsLayout.addWidget(self.installDirButton)
         self.downloadDirButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.downloadDirButton.setAutoFillBackground(False)
-        self.downloadDirButton.setStyleSheet(":hover{ \n"
-                                             "color: gray;\n"
-                                             "}\n"
-                                             "#downloadDirButton{\n"
-                                             "border:0;\n"
-                                             "text-align: right;\n"
-                                             "}")
+        self.downloadDirButton.setStyleSheet("#downloadDirButton{color: white;border:0;text-align: right;}#downloadDirButton:hover{color: gray;}")
         self.downloadDirButton.setFlat(True)
         self.downloadDirButton.setObjectName("downloadDirButton")
         self.downloadDirButton.setToolTip(settings.value("downloadDir", defaultDownloadDir, type=str))
