@@ -38,3 +38,9 @@ cd hex-linux-launcher
 
 ## Current status
 It's now working fully. Check the issues to see if there are any missing functions or bugs.
+
+## WHY AREN'T THE VERSION NUMBERS MATCHING?
+The linux version might be behind the main version of the game, which means that the patch notes might be slightly too early in the launcher.
+
+At the same time, the version number provided by Hex Entertainment seems to be wrong and doesn't match what the binary provided actually contains. Until that's fixed we'll have to deal with confusing version numbers!
+
