@@ -10,7 +10,7 @@ Table of Contents
          * [Ubuntu/Debian based](#ubuntudebian-based)
          * [Arch based](#arch-based)
       * [Current status](#current-status)
-
+      * [WHY AREN'T THE VERSION NUMBERS MATCHING?](#WHY-AREN'T-THE-VERSION-NUMBERS-MATCHING?)
 
 
 <img src="https://i.imgur.com/aRYhEVJ.gif" width="500"  />
