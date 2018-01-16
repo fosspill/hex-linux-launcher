@@ -14,7 +14,7 @@ archivepath = "hex.tar.gz"
 rss = "https://forums.hextcg.com/index.php?board-feed/9/&at=2005-7741e7e5e702a32b9070a9743435e54b516d408a"
 
 
-defaultDownloadDir="/tmp/"
+defaultDownloadDir="/tmp"
 
 class Ui_hexpatcherwindow(object):
     def setupUi(self, hexpatcherwindow):
@@ -296,7 +296,7 @@ class Ui_hexpatcherwindow(object):
 
     def retranslateUi(self, hexpatcherwindow):
         _translate = QtCore.QCoreApplication.translate
-        hexpatcherwindow.setWindowTitle(_translate("hexpatcherwindow", "Unofficial Hex: Shards of Fate Patcher. Live: {}").format(self.remoteVersion()))
+        hexpatcherwindow.setWindowTitle(_translate("hexpatcherwindow", "Unofficial Hex: Shards of Fate Patcher. Live: {}").format(self.remoteVersion().strip("\n")))
         self.playButton.setText(_translate("hexpatcherwindow", "Check for updates"))
         self.label.setText(_translate("hexpatcherwindow", "Maintenance and Updates - HEX: Shards of Fate"))
         #self.patchtext.setHtml(_translate("hexpatcherwindow",
@@ -414,9 +414,14 @@ class Ui_hexpatcherwindow(object):
             settings.remove("localmd5")
             settings.sync()
             del settings
-            self.installDirButton.setToolTip(selectedPath)
-            self.label_6.setText(selectedPath)
-            return True
+            if self.enoughSpaceAvailable(selectedPath, 3):
+                self.installDirButton.setToolTip(selectedPath)
+                self.label_6.setText(selectedPath)
+                return True
+            else:
+                self.warnBox("Not enough space", "Not enough free space on {}".format(selectedPath))
+                self.resetWindow()
+                return False
 
     def selectDownloadDir(self):
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Download Directory")
@@ -428,14 +433,19 @@ class Ui_hexpatcherwindow(object):
             settings.setValue('downloadDir', selectedPath)
             settings.sync()
             del settings
-            self.downloadDirButton.setToolTip(selectedPath)
-            self.label_6.setText(selectedPath)
-            return True
+            if self.enoughSpaceAvailable(selectedPath, 3):
+                self.downloadDirButton.setToolTip(selectedPath)
+                self.label_6.setText(selectedPath)
+                return True
+            else:
+                self.warnBox("Not enough space", "Not enough free space on {}".format(selectedPath))
+                self.resetWindow()
+                return False
 
     def getDownloadDir(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         chosenpath = settings.value("downloadDir", defaultDownloadDir, type=str)
-        fullpath = "{}hex.tar.gz".format(chosenpath)
+        fullpath = "{}/hex.tar.gz".format(chosenpath)
         return fullpath
 
     def forceInstall(self):
@@ -461,13 +471,18 @@ class Ui_hexpatcherwindow(object):
 
         self.playButton.setEnabled(False)
         self.playButton.setText("Downloading")
-        if self.url_is_alive(url) and self.enoughSpaceAvailable(settings.value("downloadDir", defaultDownloadDir, type=str), 3):
+
+        if self.url_is_alive(url) and self.enoughSpaceAvailable(settings.value("downloadDir", defaultDownloadDir, type=str), 3) and self.enoughSpaceAvailable(settings.value("installDir", type=str), 4):
             urllib.request.urlretrieve(url, self.getDownloadDir(), reporthook)
             self.progressBar.setValue(100)
             self.playButton.setEnabled(True)
             self.playButton.setText("Download Complete")
         elif not self.enoughSpaceAvailable(settings.value("downloadDir", defaultDownloadDir, type=str), 3):
             self.warnBox("Not enough space", "Not enough free space on {}".format(settings.value("downloadDir", defaultDownloadDir, type=str)))
+            self.resetWindow()
+            return
+        elif not self.enoughSpaceAvailable(settings.value("installDir", type=str), 4):
+            self.warnBox("Not enough space", "Not enough free space on {}".format(settings.value("installDir", type=str)))
             self.resetWindow()
             return
         else:
@@ -494,20 +509,14 @@ class Ui_hexpatcherwindow(object):
 
             tar.close()
 
-        if self.enoughSpaceAvailable(settings.value("installDir", type=str), 4):
-            self.playButton.setText("Extracting")
-            self.progressBar.setValue(0)
-            extraction(self.getDownloadDir())
-            self.playButton.setText("Extraction complete")
-            settings.setValue("localmd5", str(self.remotemd5()))
-            settings.sync()
-            del settings
-            self.playButtonClick()
-        else:
-            self.warnBox("Not enough space", "Not enough free space on {}".format(settings.value("installDir", type=str)))
-            self.resetWindow()
-            return
-
+        self.playButton.setText("Extracting")
+        self.progressBar.setValue(0)
+        extraction(self.getDownloadDir())
+        self.playButton.setText("Extraction complete")
+        settings.setValue("localmd5", str(self.remotemd5()))
+        settings.sync()
+        del settings
+        self.playButtonClick()
 
     def gameuptodate(self):
         self.playButton.setText("Checking for update")
