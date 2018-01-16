@@ -37,4 +37,4 @@ cd hex-linux-launcher
 ` sudo pacman -S python-feedparser python-pyqt5 `
 
 ## Current status
-It's now working fully. Check the issues to see if there are any missing fuctions or bugs.
+It's now working fully. Check the issues to see if there are any missing functions or bugs.
