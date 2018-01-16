@@ -1,5 +1,18 @@
 # hex-linux-launcher
 
+Table of Contents
+=================
+
+   * [hex-linux-launcher](#hex-linux-launcher)
+      * [Requirements](#requirements)
+      * [How to install](#how-to-install)
+      * [Dependency installation](#dependency-installation)
+         * [Ubuntu/Debian based](#ubuntudebian-based)
+         * [Arch based](#arch-based)
+      * [Current status](#current-status)
+
+
+
 <img src="https://i.imgur.com/aRYhEVJ.gif" width="500"  />
 
 ## Requirements
