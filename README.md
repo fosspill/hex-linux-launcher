@@ -10,7 +10,7 @@ Table of Contents
          * [Ubuntu/Debian based](#ubuntudebian-based)
          * [Arch based](#arch-based)
       * [Current status](#current-status)
-      * [WHY AREN'T THE VERSION NUMBERS MATCHING?](#WHY-AREN'T-THE-VERSION-NUMBERS-MATCHING?)
+      * [WHY ARE THE VERSION NUMBERS SO CONFUSING](#WHY-ARE-THE-VERSION-NUMBERS-SO-CONFUSING)
 
 
 <img src="https://i.imgur.com/aRYhEVJ.gif" width="500"  />
@@ -39,7 +39,7 @@ cd hex-linux-launcher
 ## Current status
 It's now working fully. Check the issues to see if there are any missing functions or bugs.
 
-## WHY AREN'T THE VERSION NUMBERS MATCHING?
+## WHY ARE THE VERSION NUMBERS SO CONFUSING
 The linux version might be behind the main version of the game, which means that the patch notes might be slightly too early in the launcher.
 
 At the same time, the version number provided by Hex Entertainment seems to be wrong and doesn't match what the binary provided actually contains. Until that's fixed we'll have to deal with confusing version numbers!
