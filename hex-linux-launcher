@@ -8,7 +8,6 @@ import tarfile
 import os
 import subprocess
 import feedparser
-import hashlib
 
 url = "http://fallback.hextcg.com/static/live/linux/hex.tar.gz"
 archivepath = "hex.tar.gz"
@@ -307,7 +306,7 @@ class Ui_hexpatcherwindow(object):
 
     def retranslateUi(self, hexpatcherwindow):
         _translate = QtCore.QCoreApplication.translate
-        hexpatcherwindow.setWindowTitle(_translate("hexpatcherwindow", "Unofficial Hex: Shards of Fate Patcher"))
+        hexpatcherwindow.setWindowTitle(_translate("hexpatcherwindow", "Unofficial Hex: Shards of Fate Patcher. Live: {}").format(self.remoteVersion()))
         self.playButton.setText(_translate("hexpatcherwindow", "Check for updates"))
         self.label.setText(_translate("hexpatcherwindow", "Maintenance and Updates - HEX: Shards of Fate"))
         #self.patchtext.setHtml(_translate("hexpatcherwindow",
@@ -340,12 +339,28 @@ class Ui_hexpatcherwindow(object):
 
     def remotemd5(self):
         try:
-            response = urllib.request.urlopen("http://fallback.hextcg.com/static/live/linux/hex.tar.gz")
-            string = "{}{}".format(response.headers["Content-Length"], response.headers["Last-Modified"])
-            return hashlib.md5(string.encode('utf-8')).hexdigest()
+            response = urllib.request.urlopen("http://fallback.hextcg.com/static/live/linux/md5.txt").read().decode(
+                'utf-8')
+            return response[:32]
         except urllib.error.HTTPError as e:
             print('''An error occurred: {}
         The response code was {}'''.format(e, e.getcode()))
+
+    def remoteVersion(self):
+        try:
+            response = urllib.request.urlopen("http://fallback.hextcg.com/static/live/linux/version.txt").read().decode(
+                'utf-8')
+            return response
+        except urllib.error.HTTPError as e:
+            print('''An error occurred: {}
+        The response code was {}'''.format(e, e.getcode()))
+
+    #Extracted, 4GB
+    #Download, 3GB
+    def enoughSpaceAvailable(self, argdisk, requirement):
+        disk = os.statvfs(argdisk)
+        totalAvailSpaceNonRoot = float(disk.f_bsize * disk.f_bavail) / 1024 / 1024 / 1024
+        return totalAvailSpaceNonRoot > requirement
 
     def uptodateToggle(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
@@ -368,12 +383,11 @@ class Ui_hexpatcherwindow(object):
             self.optionsButton.setEnabled(True)
             self.playButton.clicked.disconnect(self.playButtonClick)
             self.playButton.clicked.connect(self.playGame)
+
         elif not self.gameuptodate() and proceed:
             self.playButton.setEnabled(False)
             self.playButton.setText("Warm-up in progress")
             self.download()
-        else:
-            self.resetWindow()
 
     def playGame(self):
         self.playButton.setText("Starting game.")
@@ -393,13 +407,19 @@ class Ui_hexpatcherwindow(object):
     def toggleOptions(self):
         self.optionsWidget.setVisible(not self.optionsWidget.isVisible())
 
+    def warnBox(self, title, text):
+        QtWidgets.QMessageBox.warning(None, title, text, QtWidgets.QMessageBox.Ok)
+
     def selectInstallDir(self):
+        settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         selectedPath=QtWidgets.QFileDialog.getExistingDirectory(None, "Select Install Directory")
         if not selectedPath:
+            if not settings.value("installDir", type=str):
+                self.warnBox("Directory not chosen", "You must chose a directory to install the game.")
+            del settings
             self.resetWindow()
             return False
         else:
-            settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
             settings.setValue('installDir', selectedPath)
             settings.remove("localmd5")
             settings.sync()
@@ -425,7 +445,7 @@ class Ui_hexpatcherwindow(object):
     def getDownloadDir(self):
         settings = QtCore.QSettings('fosspill', 'hex-linux-patcher')
         chosenpath = settings.value("downloadDir", defaultDownloadDir, type=str)
-        fullpath = "{}/hex.tar.gz".format(chosenpath)
+        fullpath = "{}hex.tar.gz".format(chosenpath)
         return fullpath
 
     def forceInstall(self):
@@ -451,17 +471,19 @@ class Ui_hexpatcherwindow(object):
 
         self.playButton.setEnabled(False)
         self.playButton.setText("Downloading")
-        if self.url_is_alive(url):
+        if self.url_is_alive(url) and self.enoughSpaceAvailable(settings.value("downloadDir", defaultDownloadDir, type=str), 3):
             urllib.request.urlretrieve(url, self.getDownloadDir(), reporthook)
             self.progressBar.setValue(100)
             self.playButton.setEnabled(True)
             self.playButton.setText("Download Complete")
+        elif not self.enoughSpaceAvailable(settings.value("downloadDir", defaultDownloadDir, type=str), 3):
+            self.warnBox("Not enough space", "Not enough free space on {}".format(settings.value("downloadDir", defaultDownloadDir, type=str)))
+            self.resetWindow()
+            return
         else:
             self.progressBar.setValue(0)
             self.playButton.setEnabled(True)
             self.playButton.setText("Error. Try again later.")
-        self.playButton.setText("Extracting")
-        self.progressBar.setValue(0)
 
 
         def extraction(archivepath):
@@ -482,12 +504,19 @@ class Ui_hexpatcherwindow(object):
 
             tar.close()
 
-        extraction(self.getDownloadDir())
-        self.playButton.setText("Extraction complete")
-        settings.setValue("localmd5", str(self.remotemd5()))
-        settings.sync()
-        del settings
-        self.playButtonClick()
+        if self.enoughSpaceAvailable(settings.value("installDir", type=str), 4):
+            self.playButton.setText("Extracting")
+            self.progressBar.setValue(0)
+            extraction(self.getDownloadDir())
+            self.playButton.setText("Extraction complete")
+            settings.setValue("localmd5", str(self.remotemd5()))
+            settings.sync()
+            del settings
+            self.playButtonClick()
+        else:
+            self.warnBox("Not enough space", "Not enough free space on {}".format(settings.value("installDir", type=str)))
+            self.resetWindow()
+            return
 
 
     def gameuptodate(self):
