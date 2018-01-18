@@ -508,6 +508,7 @@ class Ui_hexpatcherwindow(object):
                 tar.extract(member_info, settings.value("installDir", defaultDownloadDir, type=str))
 
             tar.close()
+            os.remove(archivepath)
 
         self.playButton.setText("Extracting")
         self.progressBar.setValue(0)
